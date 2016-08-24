@@ -7,9 +7,14 @@ class Schema
 {
 	/**
 	 * Инстанс подключения к бд
-	 * 
 	 */
-	protected $manager;
+	protected $connection;
+
+	/**
+	 * Имя таблицы для работы
+	 * @var [type]
+	 */
+	protected $tableName;
 
 	protected $schemaClass = '\Doctrine\DBAL\Schema\Schema';
 
@@ -18,45 +23,51 @@ class Schema
 	 * 
 	 * @param \Motorway\SearchEngine\DB\Connection
 	 */
-	public function __construct(Connection $connection)
+	public function __construct(Connection $connection, $tableName)
 	{
 		$this->connection = $connection;
+		$this->tableName = $tableName;
 	}
 
 	/**
-	 * Производит синхронизацию схем таблиц в соответствии с переданными параметрами
+	 * Возвращает менеджер схемы
 	 * 
-	 * @param  array
-	 * @return результат выполнения последнего запроса
+	 * @return \Doctrine\DBAL\Schema\AbstractSchemaManager
 	 */
-	public function process($parms)
+	public function getSchemaManager()
 	{
-		$lastResult = null;
-		foreach($parms as $tableName => $tableParms) {
-			$lastResult = $this->processTable($tableName, $tableParms);
-		}
+		return $this->connection->getSchemaManager();
+	}
 
-		return $lastResult;
+	public function getColumns()
+	{
+		return $this->getSchemaManager()->listTableColumns($this->tableName);
+	}
+
+	public function getIndexes()
+	{
+		return $this->getSchemaManager()->listTableIndexes($this->tableName);
+	}
+
+	public function isExist()
+	{
+		return $this->getSchemaManager()->tablesExist(array($this->tableName));
 	}
 
 	/**
 	 * Производит синхронизацию схемы таблицы в соответствии с переданными параметрами
 	 * 
-	 * @param  string название таблицы
 	 * @param  array  описание таблицы
 	 * @return результат выполнения последнего запроса
 	 */
-	public function processTable($tableName, $tableParms)
+	public function process($tableParms)
 	{
-		$table = $this->getSchemaManager()->listTableDetails($tableName);
+		$table = $this->getSchemaManager()->listTableDetails($this->tableName);
 
 		$schema = $this->createSchema($table);
-		$newSchema = $this->createMigrateSchema($tableName, $tableParms);
-		
-		$columns = $table->getColumns();
-		$tableExists = !empty($columns);
+		$newSchema = $this->createMigrateSchema($tableParms);
 
-		if ($tableExists) {
+		if ($this->isExist()) {
 			$queries = $schema->getMigrateToSql($newSchema, $this->connection->getDatabasePlatform());
 		} else {
 			$queries = $newSchema->toSql($this->connection->getDatabasePlatform());
@@ -71,12 +82,15 @@ class Schema
 	}
 
 	/**
-	 * Возвращает менеджер схемы
-	 * @return \Doctrine\DBAL\Schema\AbstractSchemaManager
+	 * Производит синхронизацию схемы таблицы в соответствии с переданными параметрами
+	 * и сохранением в кеше
+	 * 
+	 * @param  array $tableParms описание таблицы
+	 * @return bool
 	 */
-	public function getSchemaManager()
+	public function processCached($tableParms)
 	{
-		return $this->connection->getSchemaManager();
+		return $this->process($tableParms);
 	}
 
 	/**
@@ -101,10 +115,10 @@ class Schema
 	 * @param  array  Описание схеы таблицы
 	 * @return \Doctrine\DBAL\Schema\Schema
 	 */
-	protected function createMigrateSchema($tableName, $tableParms)
+	protected function createMigrateSchema($tableParms)
 	{
 		$schema = $this->createSchema();
-		$table = $schema->createTable($tableName);
+		$table = $schema->createTable($this->tableName);
 
 		foreach($tableParms['columns'] as $columnName => $columnParms) {
 			$columnType = $columnParms['type'];
