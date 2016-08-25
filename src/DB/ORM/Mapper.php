@@ -1,5 +1,8 @@
 <?php
-namespace Motorway\SearchEngine\DB;
+namespace Motorway\SearchEngine\DB\ORM;
+
+use \Motorway\SearchEngine\DB\Connection;
+use \Motorway\SearchEngine\DB\Schema;
 
 class Mapper implements MapperInterface
 {
@@ -16,7 +19,7 @@ class Mapper implements MapperInterface
 	protected $keyName;
 
 	/**
-	 * @param Connection $connection
+	 * @param \Motorway\SearchEngine\DB\Connection $connection
 	 */
 	public function __construct(Connection $connection)
 	{
@@ -57,14 +60,14 @@ class Mapper implements MapperInterface
 			return $this;
 		}
 
-		return $this->entityName ?: '\Motorway\SearchEngine\DB\Entity';
+		return $this->entityName ?: '\Motorway\SearchEngine\DB\ORM\Entity';
 	}
 
 	/**
 	 * @param  array  $schema
 	 * @return mixed
 	 */
-	public function schema(array $schema = array())
+	public function schema(array $schema = [])
 	{
 		if (is_null($this->schema)) {
 			$this->schema = new Schema($this->connection, $this->tableName);
@@ -83,7 +86,7 @@ class Mapper implements MapperInterface
 	 * @param  array  $columns
 	 * @return mixed
 	 */
-	public function columns(array $columns = array())
+	public function columns(array $columns = [])
 	{
 		if ($columns) {
 			$this->columns = $columns;
@@ -124,8 +127,7 @@ class Mapper implements MapperInterface
 			$indexes = $this->schema()->getIndexes();
 			foreach ($indexes as $index) {
 				if ($index->isPrimary()) {
-					// TODO: реализовать обработку составных ключей
-					$keyName = reset($index->getColumns());
+					$keyName = $index->getColumns();
 					break;
 				}
 			}
@@ -152,7 +154,7 @@ class Mapper implements MapperInterface
 	 * @param  array $parms значение полей сущности
 	 * @return \Motorway\SearchEngine\DB\Entity
 	 */
-	public function create(array $parms)
+	public function create(array $parms = [])
 	{
 		$entity = $this->entity();
 		$entity->assign($parms);

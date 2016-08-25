@@ -1,12 +1,14 @@
 <?php
-namespace Motorway\SearchEngine\DB;
+namespace Motorway\SearchEngine\DB\ORM;
+
+use \Motorway\SearchEngine\DB\Connection;
 
 interface MapperInterface
 {
 	/**
 	 * Конструктор класса
 	 * 
-	 * @param Connection $connection ссылка на подключение к БД
+	 * @param \Motorway\SearchEngine\DB\Connection $connection ссылка на подключение к БД
 	 */
 	public function __construct(Connection $connection);
 
@@ -40,7 +42,7 @@ interface MapperInterface
 	 * @param  array  $schema описание таблицы
 	 * @return mixed  если передан параметр, возвращается ссылка на самого себя, иначе ссылка на инстанс схемы
 	 */
-	public function schema(array $schema = array());
+	public function schema(array $schema = []);
 
 	/**
 	 * Устанавливает или возвращает имена полей таблицы
@@ -48,7 +50,7 @@ interface MapperInterface
 	 * @param  array  $columns набор полей
 	 * @return mixed  если передан параметр, возвращается ссылка на самого себя, иначе массив имен полей
 	 */
-	public function columns(array $columns = array());
+	public function columns(array $columns = []);
 
 	/**
 	 * Устанавливает или возвращает имя ключевого поля 
@@ -63,7 +65,7 @@ interface MapperInterface
 	 * 
 	 * @return \Motorway\SearchEngine\DB\EntityInterface
 	 */
-	public function entity()
+	public function entity();
 
 	/**
 	 * Создает инстанс сущности и сохраняет ее в БД
@@ -71,7 +73,7 @@ interface MapperInterface
 	 * @param  array $parms значение полей сущности
 	 * @return \Motorway\SearchEngine\DB\EntityInterface
 	 */
-	public function create(array $parms = array());
+	public function create(array $parms = []);
 
 	/**
 	 * Добавляет данные сущности в БД

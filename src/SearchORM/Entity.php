@@ -1,5 +1,5 @@
 <?php
-namespace Motorway\SearchEngine\ORM;
+namespace Motorway\SearchEngine\SearchORM;
 
 class Entity implements EntityInterface
 {
@@ -10,7 +10,7 @@ class Entity implements EntityInterface
 	/**
 	 * Конструктор класса
 	 * 
-	 * @param MapperInterface $mapper ссылка на мапер
+	 * @param \Motorway\SearchEngine\SearchORM\MapperInterface $mapper ссылка на мапер
 	 */
 	public function __construct(MapperInterface $mapper)
 	{
@@ -31,11 +31,23 @@ class Entity implements EntityInterface
 
 	/**
 	 * Возвращает значение первичного ключа
+	 * В случае если ключ составной возвразается строка разделенная :
 	 * 
 	 * @return mixed
 	 */
 	public function id()
 	{
+		$key = $this->mapper->key();
+		
+		if (is_array($key)) {
+			$keys = array();
+			foreach($key as $v) {
+				$keys[] = $this->$v;
+			}
+
+			return implode(':', $keys);
+		}
+
 		return $this->{$this->mapper->key()};
 	}
 

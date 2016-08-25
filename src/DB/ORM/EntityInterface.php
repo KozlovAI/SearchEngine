@@ -1,5 +1,5 @@
 <?php
-namespace Motorway\SearchEngine\ORM;
+namespace Motorway\SearchEngine\DB\ORM;
 
 interface EntityInterface
 {
@@ -46,17 +46,59 @@ interface EntityInterface
 	 */
 	public function delete();
 
+	/**
+	 * Вызывается перед добавлением записи
+	 * 
+	 * @return bool
+	 */
 	public function beforeInsert();
 
+	/**
+	 * Вызывается перед изменением записи
+	 * 
+	 * @return bool
+	 */
 	public function beforeUpdate();
 
+	/**
+	 * Вызывается перед сохранением (добавление/изменение) записи
+	 * 
+	 * @return bool
+	 */
 	public function beforeSave();
 
+	/**
+	 * Вызывается перед удалением записи
+	 * 
+	 * @return bool
+	 */
+	public function beforeDelete();
+
+	/**
+	 * Вызывается после добавления записи
+	 * 
+	 * @return bool
+	 */
 	public function afterInsert();
 
+	/**
+	 * Вызывается после изменения записи
+	 * 
+	 * @return bool
+	 */
 	public function afterUpdate();
 
+	/**
+	 * Вызывается после сохранения (добавление/изменение) записи
+	 * 
+	 * @return bool
+	 */
 	public function afterSave();
 
+	/**
+	 * Вызывается после записи
+	 * 
+	 * @return bool
+	 */
 	public function afterDelete();
 }

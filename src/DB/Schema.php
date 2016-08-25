@@ -120,15 +120,17 @@ class Schema
 		foreach($tableParms['columns'] as $columnName => $columnParms) {
 			$columnType = $columnParms['type'];
 			unset($columnParms['type']);
-			$table->addColumn($columnName, $columnType, $columnParms);
+			$table->addColumn("`$columnName`", $columnType, $columnParms);
 		}
 
 		if (isset($tableParms['indexes'])) {
 			$primaryKeys = array();
 			foreach($tableParms['indexes'] as $indexName => $indexParms) {
+				$columns = isset($indexParms['columns']) ? $indexParms['columns'] : [$indexName];
+				$columns = array_map(function($v) { return "`{$v}`"; }, $columns);
+
 				if ($indexParms['type'] == 'primary') {
-					$column = isset($indexParms['columns']) ? $indexParms['columns'] : [$indexName];
-					$primaryKeys = array_merge($primaryKeys, $column);
+					$primaryKeys = array_merge($primaryKeys, $columns);
 					continue;
 				}
 
@@ -138,9 +140,9 @@ class Schema
 				}
 
 				if ($indexParms['type'] == 'unique') {
-					$table->addUniqueIndex($indexParms['columns'], $indexName);
+					$table->addUniqueIndex($columns, $indexName);
 				} else {
-					$table->addIndex($indexParms['columns'], $indexName);
+					$table->addIndex($columns, $indexName);
 				}
 			}
 
