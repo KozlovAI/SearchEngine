@@ -12,11 +12,8 @@ class Schema
 
 	/**
 	 * Имя таблицы для работы
-	 * @var [type]
 	 */
 	protected $tableName;
-
-	protected $schemaClass = '\Doctrine\DBAL\Schema\Schema';
 
 	/**
 	 * Конструктор класса
