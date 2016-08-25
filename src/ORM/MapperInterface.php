@@ -27,6 +27,20 @@ interface MapperInterface
 	public function columns();
 
 	/**
+	 * Создает инстанс сущности мапера
+	 * 
+	 * @return EntityInterface
+	 */
+	public function entity();
+
+	/**
+	 * Создает инстанс сущности и сохраняет ее
+	 * 
+	 * @return EntityInterface
+	 */
+	public function create(array $parms = array());
+
+	/**
 	 * Добавление записи
 	 * 
 	 * @param  EntityInterface $entity

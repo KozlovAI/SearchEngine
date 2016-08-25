@@ -83,7 +83,7 @@ class Entity implements EntityInterface
 			return $this->$method();
 		}
 
-		return $this->attrs[$prop]
+		return $this->attrs[$prop];
 	}
 
 	/**
@@ -158,37 +158,37 @@ class Entity implements EntityInterface
 		return $this->mapper->delete($this);
 	}
 
-	protected function beforeInsert()
+	public function beforeInsert()
 	{
 		return true;
 	}
 
-	protected function beforeUpdate()
+	public function beforeUpdate()
 	{
 		return true;
 	}
 
-	protected function beforeSave()
+	public function beforeSave()
 	{
 		return true;
 	}
 
-	protected function afterInsert()
+	public function afterInsert()
 	{
 		return true;
 	}
 
-	protected function afterUpdate()
+	public function afterUpdate()
 	{
 		return true;
 	}
 
-	protected function afterSave()
+	public function afterSave()
 	{
 		return true;
 	}
 
-	protected function afterDelete()
+	public function afterDelete()
 	{
 		return true;
 	}

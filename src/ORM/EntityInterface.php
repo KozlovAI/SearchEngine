@@ -8,7 +8,15 @@ interface EntityInterface
 	 * 
 	 * @param Mapper $mapper
 	 */
-	public function __construct(Mapper $mapper);
+	public function __construct(MapperInterface $mapper);
+
+	/**
+	 * Заполняет поля сущности из массива
+	 * 
+	 * @param  array  $parms
+	 * @return self
+	 */
+	public function assign(array $parms);
 
 	/**
 	 * Добавление записи
@@ -38,63 +46,17 @@ interface EntityInterface
 	 */
 	public function delete();
 
-	/**
-	 * Вызывается перед добавлением записи, в этом методе можно прервать
-	 * процедуру добавления
-	 * 
-	 * @return true
-	 */
-	protected function beforeInsert();
+	public function beforeInsert();
 
-	/**
-	 * Вызывается перед изменением записи, в этом методе можно прервать
-	 * процедуру изменения
-	 * 
-	 * @return true
-	 */
-	protected function beforeUpdate();
-	
-	/**
-	 * Вызывается перед сохранением (добавление и изменение) записи, 
-	 * в этом методе можно прервать процедуру сохранения
-	 * 
-	 * @return bool
-	 */
-	protected function beforeSave();
-	
-	/**
-	 * Вызывается перед удалением записи, в этом методе можно прервать
-	 * процедуру удаления
-	 * 
-	 * @return bool
-	 */
-	protected function beforeDelete();
+	public function beforeUpdate();
 
-	/**
-	 * Вызывается после добавления записи
-	 * 
-	 * @return bool
-	 */
-	protected function afterInsert();
+	public function beforeSave();
 
-	/**
-	 * Вызывается после добавления записи
-	 * 
-	 * @return bool
-	 */
-	protected function afterUpdate();
-	
-	/**
-	 * Вызывается после изменения записи
-	 * 
-	 * @return bool
-	 */
-	protected function afterSave();
-	
-	/**
-	 * Вызывается после удаления записи
-	 * 
-	 * @return bool
-	 */
-	protected function afterDelete();
+	public function afterInsert();
+
+	public function afterUpdate();
+
+	public function afterSave();
+
+	public function afterDelete();
 }
