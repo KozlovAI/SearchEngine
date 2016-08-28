@@ -1,5 +1,5 @@
 <?php
-namespace Motorway\SearchEngine\DB;
+namespace Motorway\SearchEngine\SearchORM\Sphinx\Utils\DB;
 
 use Doctrine\DBAL;
 

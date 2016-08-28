@@ -1,7 +1,5 @@
 <?php
-namespace Motorway\SearchEngine\DB;
-
-use \Motorway\SearchEngine\DB\Connection;
+namespace Motorway\SearchEngine\SearchORM\Sphinx\Utils\DB;
 
 class Schema
 {
