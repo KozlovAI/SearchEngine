@@ -11,12 +11,12 @@ class Factory
 
 	public static function create($config)
 	{
-		if (is_object($config)) {
-			if ($config instanceof ConfigInterface) {
-				return $config;
-			}
-			
+		if ($config instanceof ConfigInterface) {
+			return $config;
+		} elseif (is_object($config)) {
 			throw new \LogicException('Config must be instanceof \\Motorway\\SearchEngine\\Config\\ConfigInterface');	
+		} elseif (!preg_match('{\.php$}', $config)) {
+			$config = \Motorway\SearchEngine\Index::configLoadPath() . "/{$config}.php";
 		}
 
 		if (!file_exists($config)) {
