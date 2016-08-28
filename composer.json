@@ -1,21 +1,19 @@
 {
     "name": "motorway/SearchEngine",
-    "description": "description",
+    "description": "",
     "keywords": [
     ],
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author_email@example.com",
-            "homepage": "http://author-website.example.com",
+            "name": ":motorway",
+            "email": "kapitan-q@ya.ru",
+            "homepage": "https://github.com/motorway/SearchEngine",
             "role": "Developer"
         }
     ],
     "require": {
         "php" : ">=5.3.0",
-        "symfony/options-resolver": "^3.1",
-        "symfony/finder": "^3.1",
         "doctrine/dbal": "^2.5"
     },
     "require-dev": {
