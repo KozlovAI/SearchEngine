@@ -85,7 +85,19 @@ class Schema
 	 */
 	public function processCached($tableParms)
 	{
-		return $this->process($tableParms);
+		$cacheKey = 'dbschema__sphinx_delta__'. $this->tableName;
+
+		$oldValue = \Motorway\SearchEngine\Index::cache()->fetch($cacheKey);
+		$newValue = md5(serialize($tableParms));
+
+		if ($oldValue != $newValue) {
+			$ret = $this->process($tableParms);
+			\Motorway\SearchEngine\Index::cache()->save($cacheKey, $newValue);
+		} else {
+			$ret = true;
+		}
+
+		return $ret;
 	}
 
 	/**

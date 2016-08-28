@@ -12,6 +12,8 @@ class Index
 
 	protected static $configSavePath = false;
 
+	protected static $cache;
+
 	/**
 	 * Возвращает инстанс класс по сохраненному имени
 	 * 
@@ -64,6 +66,19 @@ class Index
 		}
 
 		return ROOT_PATH .'/output/';
+	}
+
+	public static function cache()
+	{
+		if (self::$cache) {
+			return self::$cache;
+		}
+
+		$options = array('directory' => ROOT_PATH .'/cache/');
+		$factory = new \Piwik\Cache\Backend\Factory();
+		$backend = $factory->buildBackend('file', $options);
+
+		return self::$cache = new \Piwik\Cache\Lazy($backend);
 	}
 
 
