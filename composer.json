@@ -1,14 +1,15 @@
 {
     "name": "motorway/SearchEngine",
+    "type": "library",
     "description": "",
-    "keywords": [
-    ],
+    "keywords": [],
+    "homepage": "https://github.com/motorway/SearchEngine",
     "license": "MIT",
     "authors": [
         {
             "name": ":motorway",
             "email": "kapitan-q@ya.ru",
-            "homepage": "https://github.com/motorway/SearchEngine",
+            "homepage": "",
             "role": "Developer"
         }
     ],
@@ -29,9 +30,4 @@
             "Motorway\\SearchEngine\\Test\\": "tests"
         }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0-dev"
-        }
-    }
 }
