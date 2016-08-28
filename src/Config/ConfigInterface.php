@@ -33,4 +33,9 @@ interface ConfigInterface
 	 * @return mixed
 	 */
 	public function get($name, $default = null);
+
+	/**
+	 * Возвращает базовый ORM маппер ассоциированный с конфигом
+	 */
+	public function defaultOrm();
 }

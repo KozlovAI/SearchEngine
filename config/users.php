@@ -1,5 +1,7 @@
 <?php
 return array(
+	'type' => 'sphinx_delta',
+
 	'source' => 'mysql://root:root@127.0.0.1/sphinxsearch',
 	
 	'query_pre' => ['SET NAMES utf8'],

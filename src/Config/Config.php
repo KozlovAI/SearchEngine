@@ -7,6 +7,8 @@ class Config implements ConfigInterface
 
 	protected $options;
 
+	protected $defaultOrm = false;
+
 	/**
 	 * Коснтруктор класса
 	 * 
@@ -59,5 +61,10 @@ class Config implements ConfigInterface
 	public function get($name, $default = null)
 	{
 		return isset($this->options[$name]) ? $this->options[$name] : $default;
+	}
+
+	public function defaultOrm()
+	{
+		return $this->defaultOrm ?: $this->get('type');
 	}
 }
