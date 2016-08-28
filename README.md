@@ -6,7 +6,7 @@
 Установка производится через composer
 
 ``` bash
-$ composer require https://github.com/motorway/SearchEngine.git
+$ composer require motorway/searchengine
 ```
 
 ## Использование
