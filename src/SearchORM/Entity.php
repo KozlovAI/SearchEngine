@@ -5,7 +5,7 @@ class Entity implements EntityInterface
 {
 	protected $mapper;
 
-	protected $attrs;
+	protected $attrs = array();
 
 	/**
 	 * Конструктор класса
@@ -16,17 +16,6 @@ class Entity implements EntityInterface
 	{
 		$this->mapper = $mapper;
 		$this->setup();
-	}
-
-	/**
-	 * Вызывется после создания инстанса
-	 * можно задать значение полей по умолчанию
-	 * 
-	 * @return self
-	 */
-	protected function setup()
-	{
-		return $this;
 	}
 
 	/**
@@ -59,7 +48,11 @@ class Entity implements EntityInterface
 	 */
 	public function assign(array $parms)
 	{
-		$this->attrs = $parms;
+		foreach($parms as $parm => $value) {
+			if ($this->__isset($parm)) {
+				$this->__set($parm, $value);
+			}
+		}
 
 		return $this;
 	}
@@ -95,7 +88,7 @@ class Entity implements EntityInterface
 			return $this->$method();
 		}
 
-		return $this->attrs[$prop];
+		return isset($this->attrs[$prop]) ? $this->attrs[$prop] : null;
 	}
 
 	/**
@@ -115,10 +108,11 @@ class Entity implements EntityInterface
 
 		$method = 'set_'. $prop;
 		if (method_exists($this, $method)) {
-			return $this->$method($value);
+			$this->$method($value);
+			return;
 		}
 
-		return $this->attrs[$prop];
+		$this->attrs[$prop] = $value;
 	}
 
 	public function __unset($prop)
@@ -170,38 +164,94 @@ class Entity implements EntityInterface
 		return $this->mapper->delete($this);
 	}
 
+	/**
+	 * Вызывается перед добавлением записи
+	 * 
+	 * @return bool
+	 */
 	public function beforeInsert()
 	{
 		return true;
 	}
 
+	/**
+	 * Вызывается перед изменением записи
+	 * 
+	 * @return bool
+	 */
 	public function beforeUpdate()
 	{
 		return true;
 	}
 
+	/**
+	 * Вызывается перед сохранением записи
+	 * 
+	 * @return bool
+	 */
 	public function beforeSave()
 	{
 		return true;
 	}
 
+	/**
+	 * Вызывается перед удалением записи
+	 * 
+	 * @return bool
+	 */
+	public function beforeDelete()
+	{
+		return true;
+	}
+
+	/**
+	 * Вызывается после добавления записи
+	 * 
+	 * @return bool
+	 */
 	public function afterInsert()
 	{
 		return true;
 	}
 
+	/**
+	 * Вызывается после изменения записи
+	 * 
+	 * @return bool
+	 */
 	public function afterUpdate()
 	{
 		return true;
 	}
 
+	/**
+	 * Вызывается после сохранения записи
+	 * 
+	 * @return bool
+	 */
 	public function afterSave()
 	{
 		return true;
 	}
 
+	/**
+	 * Вызывается после удаления записи
+	 * 
+	 * @return bool
+	 */
 	public function afterDelete()
 	{
 		return true;
+	}
+
+	/**
+	 * Вызывется после создания инстанса
+	 * можно задать значение полей по умолчанию
+	 * 
+	 * @return self
+	 */
+	protected function setup()
+	{
+		return $this;
 	}
 }

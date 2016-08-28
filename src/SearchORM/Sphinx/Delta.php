@@ -1,151 +1,148 @@
 <?php
 namespace Motorway\SearchEngine\SearchORM\Sphinx;
 
-use \Motorway\SearchEngine\Config\ConfigInterface;
-use \Motorway\SearchEngine\DB\Connection;
 use \Motorway\SearchEngine\SearchORM\EntityInterface;
 
 class Delta extends Simple 
 {
 	protected $writer;
 
-	public function __construct(ConfigInterface $config)
+	public function save(EntityInterface $entity)
 	{
-		parent::__construct($config);
+		$isExist = $this->writer()->createQueryBuilder()
+			->select('1 as exist')
+			->from('se_sphinx_updates')
+			->where('index_name = ? and rel_id = ?')
+			->setParameter(0, $this->config->getName())
+			->setParameter(1, $entity->id())
+			->execute()
+			->fetch()
+		;
 
-		$this->writer = $this->makeWriter($config);
-	}
-
-	/**
-	 * Добавляет запись
-	 * 
-	 * @param  \Motorway\SearchEngine\SearchORM\EntityInterface $entity
-	 * @return bool
-	 */
-	public function insert(EntityInterface $entity)
-	{
-		$saveEntity = $this->writer->entity();
-		$saveEntity->index       = $this->name;
-		$saveEntity->rel_id      = $entity->id();
-		$saveEntity->update_time = new \DateTime();
-
-		return 1 == 1
-			&& $this->beforeInsert($entity) 
-			&& $saveEntity->insert()
-			&& $this->afterInsert($entity); 
-	}
-
-	/**
-	 * Изменяет запись
-	 * 
-	 * @param  \Motorway\SearchEngine\SearchORM\EntityInterface $entity
-	 * @return bool
-	 */
-	public function update(EntityInterface $entity)
-	{
-		$saveEntity = $this->writer->entity();
-		$saveEntity->index       = $this->name;
-		$saveEntity->rel_id      = $entity->id();
-		$saveEntity->update_time = new \DateTime();
-
-		return 1 == 1
-			&& $this->beforeUpdate($entity)
-			&& $entity->update()
-			&& $this->afterUpdate($entity);
-	}
-
-	/**
-	 * Сохраняет запись
-	 * 
-	 * @param  \Motorway\SearchEngine\SearchORM\EntityInterface $entity
-	 * @return bool
-	 */
-	public function delete(EntityInterface $entity)
-	{
-		$saveEntity = $this->writer->entity();
-		$saveEntity->index       = $this->name;
-		$saveEntity->rel_id      = $entity->id();
-		$saveEntity->update_time = new \DateTime();
-		$saveEntity->deleted     = true;
-
-		return 1 == 1
-			&& $this->beforeDelete($entity)
-			&& $entity->delete()
-			&& $this->afterDelete($entity);
-
-	}
-
-	/**
-	 * Возвращает DB маппер для таблицы в которую
-	 * записываются изменения
-	 * 
-	 * @param  \Motorway\SearchEngine\Config\ConfigInterface $entity
-	 * @return \Motorway\SearchEngine\DB\ORM\MapperInterface
-	 */
-	protected function makeWriter(ConfigInterface $config)
-	{
-		$source = $config->get('source');
-
-		if (empty($source)) {
-			throw new \LogicException("source is empty", 1);
+		if ($isExist) {
+			return $this->update($entity);
 		}
 
-		$conn = Connection::getConnection($source);
-
-		return new DB\Changes($conn);
+		return $this->insert($entity);
 	}
 
 	/**
-	 * @param  \Motorway\SearchEngine\SearchORM\EntityInterface $entity
-	 * @return bool
+	 * Возвращает инстанс для записи индекса
+	 * 
+	 * @return \Motorway\SearchEngine\DB\Connection
 	 */
-	protected function beforeInsert(EntityInterface $entity)
+	protected function writer()
 	{
-		return $entity->beforeInsert() && $entity->beforeSave();
+		if ($this->writer) {
+			return $this->writer;
+		}
+
+		$dsn = $this->config->get('source');
+
+		return $this->writer = new Utils\DB\Connection($dsn);
+	}
+
+	protected function setup()
+	{
+		$schema = new Utils\DB\Schema($this->writer(), 'se_sphinx_updates');
+		$schema->processCached($this->getSchemaChanges());
+
+		$schema = new Utils\DB\Schema($this->writer(), 'se_sphinx_counters');
+		$schema->processCached($this->getSchemaCounters());
 	}
 
 	/**
-	 * @param  \Motorway\SearchEngine\SearchORM\EntityInterface $entity
-	 * @return bool
+	 * Возвращает схему таблицы для записи изменений
+	 * 
+	 * @return []
 	 */
-	protected function beforeUpdate(EntityInterface $entity)
+	protected function getSchemaChanges()
 	{
-		return $entity->beforeUpdate() && $entity->beforeSave();
+		return [
+			'columns' => [
+				'index_name'  => ['type' => 'string'],
+				'rel_id'      => ['type' => 'integer'],
+				'update_time' => ['type' => 'datetime'],
+				'deleted'     => ['type' => 'integer', 'default' => 0],
+			],
+
+			'indexes' => [
+				['type' => 'primary', 'columns' => ['index_name', 'rel_id']]
+			],
+		];
 	}
 
 	/**
-	 * @param  \Motorway\SearchEngine\SearchORM\EntityInterface $entity
-	 * @return bool
+	 * Возвращает схему таблицы для фиксации кол-ва индексаций
+	 * 
+	 * @return []
 	 */
-	protected function beforeDelete(EntityInterface $entity)
+	protected function getSchemaCounters()
 	{
-		return $entity->beforeDelete();
+		return [
+			'columns' => [
+				'index'       => ['type' => 'string'],
+				'update_time' => ['type' => 'datetime'],
+			],
+
+			'indexes' => [
+				['type' => 'primary', 'columns' => ['index']]
+			],
+		];
 	}
 
 	/**
-	 * @param  \Motorway\SearchEngine\SearchORM\EntityInterface $entity
+	 * @param  EntityInterface $entity
 	 * @return bool
 	 */
-	protected function afterInsert(EntityInterface $entity)
+	protected function doInsert(EntityInterface $entity)
 	{
-		return $entity->afterInsert() && $entity->afterSave();
+		return (bool) $this->writer()->insert(
+			'se_sphinx_updates', 
+			$this->convertEntityToDB($entity)
+		);
 	}
 
 	/**
-	 * @param  \Motorway\SearchEngine\SearchORM\EntityInterface $entity
+	 * @param  EntityInterface $entity
 	 * @return bool
 	 */
-	protected function afterUpdate(EntityInterface $entity)
+	protected function doUpdate(EntityInterface $entity)
 	{
-		return $entity->afterUpdate() && $entity->afterSave();
+		return (bool) $this->writer()->update(
+			'se_sphinx_updates', 
+			$this->convertEntityToDB($entity), 
+			['index_name' => $this->config->getName(), 'rel_id' => $entity->id()]
+		);
 	}
 
 	/**
-	 * @param  \Motorway\SearchEngine\SearchORM\EntityInterface $entity
+	 * @param  EntityInterface $entity
 	 * @return bool
 	 */
-	protected function afterDelete(EntityInterface $entity)
+	protected function doDelete(EntityInterface $entity)
 	{
-		return $entity->afterDelete();
+		return (bool) $this->writer()->update(
+			'se_sphinx_updates', 
+			$this->convertEntityToDB($entity, true), 
+			['index_name' => $this->config->getName(), 'rel_id' => $entity->id()]
+		);
+	}
+
+	/**
+	 * Возвращает массив полей для записи в индекс
+	 * 
+	 * @param  EntityInterface $entity
+	 * @param  boolean         $deleted флаг означающий, что запись удаляется
+	 * @return []
+	 */
+	protected function convertEntityToDB(EntityInterface $entity, $deleted = false)
+	{
+		return [
+			'index_name'  => $this->config->getName(),
+			'rel_id'      => $entity->id(),
+			'update_time' => (new \DateTime())->format('Y-m-d H:i:s'),
+			'deleted'     => $deleted ? 1 : 0,
+		];
 	}
 }

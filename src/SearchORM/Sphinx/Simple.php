@@ -1,25 +1,54 @@
 <?php
 namespace Motorway\SearchEngine\SearchORM\Sphinx;
 
-use \Motorway\SearchEngine\Config\ConfigInterface;
-use \Motorway\SearchEngine\DB\Connection;
-use \Motorway\SearchEngine\DB\ORM\Mapper as ReaderMapper;
-
-use \Motorway\SearchEngine\SearchORM\MapperInterface;
+use \Motorway\SearchEngine\SearchORM\AbstractMapper;
 use \Motorway\SearchEngine\SearchORM\EntityInterface;
-use \Motorway\SearchEngine\SearchORM\Entity;
+use Utils\DB\Connection;
 
-class Simple implements MapperInterface
+class Simple extends AbstractMapper
 {
-	protected $config;
-
 	protected $reader;
 
-	public function __construct(ConfigInterface $config)
+	/**
+	 * @return string
+	 */
+	public function key()
 	{
-		$this->config = $config;
+		return 'id';
 	}
 
+	/**
+	 * @param  EntityInterface $entity
+	 * @return bool
+	 */
+	protected function doInsert(EntityInterface $entity)
+	{
+		return true;
+	}
+
+	/**
+	 * @param  EntityInterface $entity
+	 * @return bool
+	 */
+	protected function doUpdate(EntityInterface $entity)
+	{
+		return true;
+	}
+
+	/**
+	 * @param  EntityInterface $entity
+	 * @return bool
+	 */
+	protected function doDelete(EntityInterface $entity)
+	{
+		return true;
+	}
+
+	/**
+	 * Возвращает инстанс для чтения индекса
+	 * 
+	 * @return \Motorway\SearchEngine\DB\Connection
+	 */
 	protected function reader()
 	{
 		if ($this->reader) {
@@ -28,18 +57,11 @@ class Simple implements MapperInterface
 
 		$listen = $this->config->get('listen');
 		if (!$listen || !isset($listen['mysql'])) {
-			throw new \LogicException('not mysql listen');
+			throw new \LogicException('not sphinx mysql listen');
 		}
 
 		$dsn = 'mysql://'. $listen['mysql'];
-		
-		$this->reader = new ReaderMapper(new Connection($dsn));
-		$this->reader
-				->tableName($this->config->getName());
-				->key('id')
-				->entityName('ss');
 
-
-		return $this->reader;
+		return $this->reader = new Connection($dsn);
 	}
 }
