@@ -24,3 +24,31 @@ $usersSearch = \Motorway\SearchEngine\Index::getInstance('users');
 // будет загружен конфиг по адресу /new/path/to/configs/users.php
 $usersSearch = \Motorway\SearchEngine\Index::getInstance('users');
 ```
+
+### ORM
+Для работы с поисковым индексом определен единый интерфейс ORM, который позволяет добавлять/изменять/удалять данный из индекса. 
+Пользовательский код необходимо будет доработать таким образом, чтобы в момент изменения данных были вызваны соответсвующие методы orm
+
+``` php
+// например добавление/изменение данных
+function createOrUpdateUser($data)
+{
+	// ... save user data code
+
+	$entity = \Motorway\SearchEngine\Index::getInstance('users')->orm()->entity();
+	$entity->id = $userId;
+	$entity->fieldOne = 'aaa';
+	$entity->fieldTwo = 'aaa';
+	$entity->save();
+}
+
+function deleteUser($userId)
+{
+	// ... delete user code
+	
+	$entity = \Motorway\SearchEngine\Index::getInstance('users')->orm()->entity();
+	$entity->id = $userId;
+	$entity->delete();
+}
+
+```
