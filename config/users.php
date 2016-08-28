@@ -1,6 +1,6 @@
 <?php
 return array(
-	'source' => 'mysql://root:root@127.0.0.1/shpinxsearch',
+	'source' => 'mysql://root:root@127.0.0.1/sphinxsearch',
 	
 	'query_pre' => ['SET NAMES utf8'],
 	
